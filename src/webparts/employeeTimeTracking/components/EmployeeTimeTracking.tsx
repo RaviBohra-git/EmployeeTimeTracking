@@ -7,10 +7,47 @@ import {
   Selection,
   SelectionMode,
   IColumn,
+  Modal,
+  mergeStyleSets,
+  FontWeights,
+  getTheme
 } from 'office-ui-fabric-react/lib/';
 import TimeEntriesGrid from './TimeEntriesGrid';
+import NewEntry from './NewEntry';
 import commonUtility from '../components/DataUtility';
 const util: commonUtility = new commonUtility();
+const theme = getTheme();
+const contentStyles = mergeStyleSets({
+  container: {
+    display: 'flex',
+    flexFlow: 'column nowrap',
+    alignItems: 'stretch',
+    width: '500px'
+  },
+  header: [
+    // eslint-disable-next-line deprecation/deprecation
+    theme.fonts.xLargePlus,
+    {
+      flex: '1 1 auto',
+      borderTop: `4px solid ${theme.palette.themePrimary}`,
+      color: theme.palette.neutralPrimary,
+      display: 'flex',
+      alignItems: 'center',
+      fontWeight: FontWeights.semibold,
+      padding: '12px 12px 14px 24px',
+    },
+  ],
+  body: {
+    flex: '4 4 auto',
+    padding: '0 24px 24px 24px',
+    overflowY: 'hidden',
+    selectors: {
+      p: { margin: '14px 0' },
+      'p:first-child': { marginTop: 0 },
+      'p:last-child': { marginBottom: 0 },
+    },
+  },
+});
 
 export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeTrackingProps, IEmployeeTimeTrackingState> {
   constructor(props: IEmployeeTimeTrackingProps) {
@@ -25,6 +62,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
       isModalOpen: false
     };
   }
+  
 
   public async componentDidMount() {
     let items = await util.getAllItems(this.props.configuredListName);
@@ -109,9 +147,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
         isCollapsible: true,
         data: 'string',
         onColumnClick: this._onColumnClick,
-        // onRender: (item: IDocument) => {
-        //   return <span>{item.fileSize}</span>;
-        // },
+
       },
       {
         key: 'column6',
@@ -140,14 +176,16 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
         text: 'New',
         cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
         iconProps: { iconName: 'Add' },
-        onClick: () => alert('New Item Clicked'),
+        onClick: () => {this.setState({isModalOpen:true});},
+        
       },
       {
         key: 'Edit Item',
         text: 'Edit',
         cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
         iconProps: { iconName: 'Edit' },
-        onClick: () => alert('Edit Item Clicked'),
+        disabled: !this.state.isItemSelected,
+        onClick: () => {this.setState({isModalOpen:true});},
       }
       ,
       {
@@ -155,6 +193,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
         text: 'Delete',
         cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
         iconProps: { iconName: 'Delete' },
+        disabled: !this.state.isItemSelected,
         onClick: () => alert('Edit Item Clicked'),
       }
     ];
@@ -167,7 +206,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
           items={_items}
         />
         <br></br>
-        <TimeEntriesGrid items={this.state.items}></TimeEntriesGrid>
+        <TimeEntriesGrid selectItem={(ItemID,selected)=>{this.setState({selectedItemID:ItemID,isItemSelected:selected});}} items={this.state.items}></TimeEntriesGrid>
         {/* <DetailsList
           items={this.state.items}
           // compact={isCompactMode}
@@ -179,6 +218,9 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
           isHeaderVisible={true}
         // onItemInvoked={this._onItemInvoked}
         /> */}
+        <Modal isBlocking={true} containerClassName={contentStyles.container} isModeless={false} isOpen={this.state.isModalOpen} onDismissed={()=>{this.setState({isModalOpen:false});}}>
+          <NewEntry closeModal={()=>{this.setState({isModalOpen:false});}} itemObj={{}} CategoryChoices={[]}></NewEntry>
+        </Modal>
       </div>
     );
   }

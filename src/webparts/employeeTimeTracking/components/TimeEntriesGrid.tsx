@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './EmployeeTimeTracking.module.scss';
 import { TimeEntriesGridProps,TimeEntriesGridState } from './IEmployeeTimeTrackingProps';
 import {
-  CommandBar, ICommandBarItemProps, DetailsList,
+  DetailsList,
   DetailsListLayoutMode,
   Selection,
   SelectionMode,
@@ -23,7 +23,11 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
       columns:[]
     };
     this._selection = new Selection({
-      onSelectionChanged: ()=>{let ItemID:any = this._selection.getSelection()[0];alert(ItemID.ID)}//this._onItemsSelectionChanged,
+      onSelectionChanged: ()=>{
+        let ItemID:any = this._selection.getSelection()[0];
+        this.props.selectItem((ItemID?ItemID.ID:null),(ItemID?true:false));
+        //alert(ItemID.ID);
+      }
     });
   }
   
@@ -45,7 +49,6 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
         <DetailsList
           items={this.state.items}
           // compact={isCompactMode}
-        
           columns={this.state.columns}
           selectionMode={SelectionMode.single}
           selection={this._selection}
@@ -130,9 +133,6 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
         isCollapsible: true,
         data: 'string',
         onColumnClick: this._onColumnClick,
-        // onRender: (item: IDocument) => {
-        //   return <span>{item.fileSize}</span>;
-        // },
       },
       {
         key: 'column6',

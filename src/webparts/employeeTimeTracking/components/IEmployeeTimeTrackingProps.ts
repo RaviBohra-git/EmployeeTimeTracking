@@ -14,6 +14,7 @@ export interface IEmployeeTimeTrackingState {
 
 export interface TimeEntriesGridProps {
   items: any[];
+  selectItem:(ItemID,selected)=>void;
 }
 
 export interface TimeEntriesGridState {
@@ -23,12 +24,18 @@ export interface TimeEntriesGridState {
 }
 
 export interface NewEntryProps {
-  // context: any;
-  // configuredListName: string;
+  itemObj: any;
+  CategoryChoices: any[];
+  closeModal:()=>void;
 }
 
 export interface NewEntryState {
   isLoaded: boolean;
+  Title: string;
+  Description: string;
+  Category: string;
+  Hours: Number;
+  OverTime: boolean;
   // columns: any[];
   // items: any[];
 }
