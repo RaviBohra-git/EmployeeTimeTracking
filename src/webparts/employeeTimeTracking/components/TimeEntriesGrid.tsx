@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './EmployeeTimeTracking.module.scss';
-import { IEmployeeTimeTrackingProps, IEmployeeTimeTrackingState } from './IEmployeeTimeTrackingProps';
+import { TimeEntriesGridProps,TimeEntriesGridState } from './IEmployeeTimeTrackingProps';
 import {
   CommandBar, ICommandBarItemProps, DetailsList,
   DetailsListLayoutMode,
@@ -8,34 +8,55 @@ import {
   SelectionMode,
   IColumn,
 } from 'office-ui-fabric-react/lib/';
-import TimeEntriesGrid from './TimeEntriesGrid';
 import commonUtility from '../components/DataUtility';
+
 const util: commonUtility = new commonUtility();
 
-export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeTrackingProps, IEmployeeTimeTrackingState> {
-  constructor(props: IEmployeeTimeTrackingProps) {
+export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProps, TimeEntriesGridState> {
+  private _selection: Selection;
+  constructor(props: TimeEntriesGridProps) {
     super(props);
     //state declaration
     this.state = {
       isLoaded: false,
       items: [],
-      columns: [],
-      isItemSelected: false,
-      selectedItemID: '',
-      isModalOpen: false
+      columns:[]
     };
+    this._selection = new Selection({
+      onSelectionChanged: ()=>{let ItemID:any = this._selection.getSelection()[0];alert(ItemID.ID)}//this._onItemsSelectionChanged,
+    });
   }
-
-  public async componentDidMount() {
-    let items = await util.getAllItems(this.props.configuredListName);
-    this.setState({ items: items, columns: this.getColumns() });
-    console.log(items);
-  }
-
+  
   public componentDidUpdate(prevProps) {
-    if (prevProps["configuredListName"] != this.props.configuredListName) {
+    if (prevProps["items"] != this.props.items) {
       this.componentDidMount();
     }
+  }
+
+  public componentDidMount() {
+    this.setState({ items: this.props.items, columns: this.getColumns() });
+  }
+  
+
+  public render(): React.ReactElement<TimeEntriesGridProps> {
+    
+    return (
+      <div >
+        <DetailsList
+          items={this.state.items}
+          // compact={isCompactMode}
+        
+          columns={this.state.columns}
+          selectionMode={SelectionMode.single}
+          selection={this._selection}
+          // getKey={this._getKey}
+          setKey="none"
+          layoutMode={DetailsListLayoutMode.justified}
+          isHeaderVisible={true}
+        // onItemInvoked={this._onItemInvoked}
+        />
+      </div>
+    );
   }
 
   private getColumns() {
@@ -133,56 +154,6 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
     ];
   }
 
-  public render(): React.ReactElement<IEmployeeTimeTrackingProps> {
-    const _items: ICommandBarItemProps[] = [
-      {
-        key: 'newItem',
-        text: 'New',
-        cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
-        iconProps: { iconName: 'Add' },
-        onClick: () => alert('New Item Clicked'),
-      },
-      {
-        key: 'Edit Item',
-        text: 'Edit',
-        cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
-        iconProps: { iconName: 'Edit' },
-        onClick: () => alert('Edit Item Clicked'),
-      }
-      ,
-      {
-        key: 'Delete Item',
-        text: 'Delete',
-        cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
-        iconProps: { iconName: 'Delete' },
-        onClick: () => alert('Edit Item Clicked'),
-      }
-    ];
-
-    //const columns: IColumn[] =
-
-    return (
-      <div>
-        <CommandBar
-          items={_items}
-        />
-        <br></br>
-        <TimeEntriesGrid items={this.state.items}></TimeEntriesGrid>
-        {/* <DetailsList
-          items={this.state.items}
-          // compact={isCompactMode}
-          columns={this.state.columns}
-          selectionMode={SelectionMode.none}
-          // getKey={this._getKey}
-          setKey="none"
-          layoutMode={DetailsListLayoutMode.justified}
-          isHeaderVisible={true}
-        // onItemInvoked={this._onItemInvoked}
-        /> */}
-      </div>
-    );
-  }
-
   private _onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
     const { columns, items } = this.state;
     const newColumns: IColumn[] = columns.slice();
@@ -213,4 +184,4 @@ function _copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boo
   const key = columnKey as keyof T;
   return items.slice(0).sort((a: T, b: T) => ((isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1));
 }
-
+  
