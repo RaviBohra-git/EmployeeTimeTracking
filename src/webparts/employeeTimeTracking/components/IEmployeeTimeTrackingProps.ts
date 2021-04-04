@@ -42,6 +42,9 @@ export interface NewEntryState {
   Category: string;
   Hours: string;
   OverTime: boolean;
+  isValidationLable: boolean;
+  validationMessage:string;
+  isProgress: boolean;
   // columns: any[];
   // items: any[];
 }

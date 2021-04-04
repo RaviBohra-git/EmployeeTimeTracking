@@ -259,8 +259,8 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
     );
   }
 
-  private closeModal() {
-    this.setState({ isModalOpen: false });
+  private async closeModal() {
+    await this.setState({ isModalOpen: false });
     this.componentDidMount();
   }
 

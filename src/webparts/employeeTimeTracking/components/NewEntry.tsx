@@ -4,9 +4,11 @@ import { NewEntryProps, NewEntryState } from './IEmployeeTimeTrackingProps';
 import {
   TextField, mergeStyleSets, FontWeights, getTheme, IconButton,
   IIconProps,
-  Dropdown, PrimaryButton, DefaultButton
+  Dropdown, PrimaryButton, DefaultButton, ProgressIndicator
 } from 'office-ui-fabric-react/lib/';
 import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
+import ReactQuill from 'react-quill';
+require('react-quill/dist/quill.snow.css');
 import commonUtility from '../components/DataUtility';
 const util: commonUtility = new commonUtility();
 
@@ -64,7 +66,10 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
       Description: '',
       Category: '',
       Hours: '',
-      OverTime: false
+      OverTime: false,
+      isValidationLable: false,
+      validationMessage: '',
+      isProgress: false
     };
   }
 
@@ -88,7 +93,7 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
     state.CategoryChoices = categoryChoices;
     if (itemObj) {
       state.Title = itemObj.Title;
-      state.Description = itemObj.Title;
+      state.Description = itemObj.Description;
       state.Category = itemObj.Category;
       state.Hours = itemObj.Hours;
     }
@@ -98,6 +103,7 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
   public render(): React.ReactElement<NewEntryProps> {
     return (
       <div>
+
         <div className={contentStyles.header}>
           <span>Insert Worked Hours</span>
           <IconButton
@@ -107,26 +113,28 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
             onClick={() => { this.props.closeModal(); }}
           />
         </div>
-
+        {this.state.isProgress?<ProgressIndicator />:''}
+        {this.state.isValidationLable ? <div className={styles.validationMessage}>{this.state.validationMessage}</div> : ""}
         <div className={contentStyles.body}>
-          <div>
-            <div>Title</div>
+          <div className={styles.FieldSection}>
+            <div className={styles.FieldTitle}>Title <span>*</span></div>
             <div><TextField onChange={(event, newValue) => { this.setState({ Title: newValue }); }} value={this.state.Title}></TextField></div>
           </div>
 
-          <div>
-            <div>Description</div>
-            <div><TextField multiline value={this.state.Description}></TextField></div>
-            {/* <div><RichText value={this.state.Description}  onChange={(text)=>{this.setState({Description:text});return text;}}/></div> */}
+          <div className={styles.FieldSection}>
+            <div className={styles.FieldTitle}>Description</div>
+            {/* <div><TextField multiline value={this.state.Description}></TextField></div> */}
+            {/* <div><RichText isEditMode={true} value={this.state.Description?this.state.Description:''}  onChange={(text)=>this.onTextChange(text)}/></div> */}
+            <ReactQuill value={this.state.Description} onChange={this.onTextChange} ></ReactQuill>
           </div>
 
-          <div>
-            <div>Category</div>
+          <div className={styles.FieldSection}>
+            <div className={styles.FieldTitle}>Category</div>
             <div><Dropdown onChange={(event, newValue: any) => { this.setState({ Category: newValue.key }); }} options={this.state.CategoryChoices} selectedKey={this.state.Category}></Dropdown></div>
           </div>
 
-          <div>
-            <div>Hours</div>
+          <div className={styles.FieldSection}>
+            <div className={styles.FieldTitle}>Hours <span>*</span></div>
             <div><TextField onChange={(event, newValue) => { this.setState({ Hours: newValue }); }} type="number" value={this.state.Hours}></TextField></div>
           </div>
           <br></br>
@@ -144,8 +152,15 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
       Description: '',
       Category: '',
       Hours: '',
-      OverTime: false
+      OverTime: false,
+      isProgress: false
     });
+  }
+
+  private onTextChange = (newText: string) => {
+    //this.properties.myRichText = newText;
+    this.setState({ Description: newText });
+    return newText;
   }
 
   // private onFieldValueChange(stateName,value){
@@ -156,15 +171,28 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
 
   private async onSaveClick() {
     let state: NewEntryState = this.state;
-    if (this.props.itemID) {
-      await util.UpdateSPItem(this.props.configuredListName, this.props.itemID, this.state);
-      this.resetFields();
-      this.props.closeModal();
+   // await this.setState({isProgress:true});
+    if (!this.state.Title && !this.state.Hours) {
+      this.setState({ isValidationLable: true, validationMessage: "Title and Hours fields are required!" });
+    }
+    else if (!this.state.Title) {
+      this.setState({ isValidationLable: true, validationMessage: "Title field is required!" });
+    }
+    else if (!this.state.Hours) {
+      this.setState({ isValidationLable: true, validationMessage: "Hours field is required!" });
     }
     else {
-      await util.AddSPItem(this.props.configuredListName, state);
-      this.resetFields();
-      this.props.closeModal();
+      await this.setState({ isValidationLable: false, validationMessage: '',isProgress: true });
+      if (this.props.itemID) {
+        await util.UpdateSPItem(this.props.configuredListName, this.props.itemID, this.state);
+        this.resetFields();
+        this.props.closeModal();
+      }
+      else {
+        await util.AddSPItem(this.props.configuredListName, state);
+        this.resetFields();
+        this.props.closeModal();
+      }
     }
   }
 }

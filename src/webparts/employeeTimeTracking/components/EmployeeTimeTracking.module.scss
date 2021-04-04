@@ -1,7 +1,26 @@
-@import '~office-ui-fabric-react/dist/sass/References.scss';
+@import "~office-ui-fabric-react/dist/sass/References.scss";
 
 .overTimeHours {
   //background: #f8b0b0;
   color: red;
   font-weight: 700;
+}
+
+.FieldTitle {
+  font-weight: 500;
+  padding-bottom: 5px;
+}
+
+.FieldTitle>span{
+  color: red;
+}
+
+.FieldSection {
+  padding-bottom: 10px;
+}
+
+.validationMessage{
+  padding-left: 25px;
+  padding-bottom: 10px;
+  color: red;
 }

@@ -1,4 +1,3 @@
-import * as pnp from 'sp-pnp-js';
 import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists/web";
@@ -34,7 +33,6 @@ export default class CommonUtility {
             Hours: (dataObj.Hours ? parseInt(dataObj.Hours) : 0),
             OverTime: overTime
         });
-        //alert("Record with Profile Name : " + document.getElementById('ProfileName')["value"] + " Added !");
     }
 
     public async UpdateSPItem(listname, ItemID, dataObj): Promise<any> {
@@ -43,10 +41,10 @@ export default class CommonUtility {
         let todayEntries = await this.getTodaysEntries(listname);
         let totalWorkedHours = 0;
         todayEntries.map((TimeEntry) => {
-            if(TimeEntry.ID == parseInt(ItemID))
-            totalWorkedHours -= TimeEntry.Hours;
-            else
-            totalWorkedHours += TimeEntry.Hours;
+            if (TimeEntry.ID != parseInt(ItemID))
+                totalWorkedHours += TimeEntry.Hours;
+            // else
+            //     totalWorkedHours += TimeEntry.Hours;
         });
         totalWorkedHours += parseInt(dataObj.Hours);
         if (totalWorkedHours > 8)
@@ -59,12 +57,10 @@ export default class CommonUtility {
             Hours: (dataObj.Hours ? parseInt(dataObj.Hours) : 0),
             OverTime: overTime
         }).catch((error) => { console.log(error); });
-        //alert("Record with Profile ID : " + ItemID + " Updated !");
     }
 
     public async DeleteSPItem(listname, ItemID): Promise<any> {
         await sp.web.lists.getByTitle(listname).items.getById(ItemID).delete();
-        //alert("Record with Profile ID : " + ItemID + " Deleted !");
     }
 
     public getLists(): Promise<any[]> {
@@ -78,7 +74,7 @@ export default class CommonUtility {
         let currentDate = today + 'T00:00:00.000Z';
         nextday = moment(nextday).format("YYYY-MM-DD");
         let nextDate = nextday + 'T00:00:00.000Z';
-        return await sp.web.lists.getByTitle(listname).items.filter('Author eq ' + currentUser+ " and (Created ge datetime'" + currentDate + "' and Created le datetime'" + nextDate + "')").select('*,Author/Title').expand('Author').getAll();
+        return await sp.web.lists.getByTitle(listname).items.filter('Author eq ' + currentUser + " and (Created ge datetime'" + currentDate + "' and Created le datetime'" + nextDate + "')").select('*,Author/Title').expand('Author').getAll();
     }
 
     public async getItemById(listname, ItemId): Promise<any> {
