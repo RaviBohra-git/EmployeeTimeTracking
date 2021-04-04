@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './EmployeeTimeTracking.module.scss';
-import { TimeEntriesGridProps,TimeEntriesGridState } from './IEmployeeTimeTrackingProps';
+import { TimeEntriesGridProps, TimeEntriesGridState } from './IEmployeeTimeTrackingProps';
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -10,7 +10,6 @@ import {
   Checkbox
 } from 'office-ui-fabric-react/lib/';
 import commonUtility from '../components/DataUtility';
-
 const util: commonUtility = new commonUtility();
 
 export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProps, TimeEntriesGridState> {
@@ -21,48 +20,61 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
     this.state = {
       isLoaded: false,
       items: [],
-      columns:[]
+      columns: []
     };
+    //Detaillist selection
     this._selection = new Selection({
-      onSelectionChanged: ()=>{
-        let ItemID:any = this._selection.getSelection()[0];
-        this.props.selectItem((ItemID?ItemID.ID:null),(ItemID?true:false));
-        //alert(ItemID.ID);
+      onSelectionChanged: () => {
+        let ItemID: any = this._selection.getSelection()[0];
+        this.props.selectItem((ItemID ? ItemID.ID : null), (ItemID ? true : false));
       }
     });
   }
-  
+
+  /**
+   * 
+   * @param prevProps 
+   * update on property change
+   */
   public componentDidUpdate(prevProps) {
     if (prevProps["items"] != this.props.items) {
       this.componentDidMount();
     }
   }
 
+  /**
+   * Initial function of component
+   */
   public componentDidMount() {
     this.setState({ items: this.props.items, columns: this.getColumns() });
   }
-  
 
+  /**
+   * 
+   * @returns 
+   * render Component
+   */
   public render(): React.ReactElement<TimeEntriesGridProps> {
-    
     return (
       <div >
         <DetailsList
           items={this.state.items}
-          // compact={isCompactMode}
           columns={this.state.columns}
           selectionMode={SelectionMode.single}
           selection={this._selection}
-          // getKey={this._getKey}
           setKey="none"
           layoutMode={DetailsListLayoutMode.justified}
           isHeaderVisible={true}
-        // onItemInvoked={this._onItemInvoked}
         />
       </div>
     );
   }
 
+  /**
+   * 
+   * @returns 
+   * get columns object
+   */
   private getColumns() {
     return [
       {
@@ -163,13 +175,19 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
         data: 'string',
         onColumnClick: this._onColumnClick,
         onRender: (item) => {
-            return <Checkbox checked={item.OverTime}>{item.Hours}</Checkbox>;
-        
+          return <Checkbox checked={item.OverTime}>{item.Hours}</Checkbox>;
+
         },
       },
     ];
   }
 
+  /**
+   * 
+   * @param ev 
+   * @param column 
+   * on Detail list column click function
+   */
   private _onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
     const { columns, items } = this.state;
     const newColumns: IColumn[] = columns.slice();
@@ -178,26 +196,30 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
       if (newCol === currColumn) {
         currColumn.isSortedDescending = !currColumn.isSortedDescending;
         currColumn.isSorted = true;
-        // this.setState({
-        //   announcedMessage: `${currColumn.name} is sorted ${
-        //     currColumn.isSortedDescending ? 'descending' : 'ascending'
-        //   }`,
-        // });
       } else {
         newCol.isSorted = false;
         newCol.isSortedDescending = true;
       }
     });
-    const newItems = _copyAndSort(items, currColumn.fieldName!, currColumn.isSortedDescending);
+    const newItems = this._copyAndSort(items, currColumn.fieldName!, currColumn.isSortedDescending);
     this.setState({
       columns: newColumns,
       items: newItems,
     });
   }
+
+  /**
+   * 
+   * @param items 
+   * @param columnKey 
+   * @param isSortedDescending 
+   * @returns 
+   * sort items
+   */
+  private _copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
+    const key = columnKey as keyof T;
+    return items.slice(0).sort((a: T, b: T) => ((isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1));
+  }
 }
 
-function _copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
-  const key = columnKey as keyof T;
-  return items.slice(0).sort((a: T, b: T) => ((isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1));
-}
-  
+

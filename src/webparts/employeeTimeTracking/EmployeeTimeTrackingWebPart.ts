@@ -39,8 +39,12 @@ export default class EmployeeTimeTrackingWebPart extends BaseClientSideWebPart<I
     ReactDom.render(element, this.domElement);
   }
 
+  /**
+   * Webpart Init function
+   */
   protected async onInit(): Promise<void> {
     await super.onInit();
+    //Setup sp with current context
     await util.SetupSP(this.context);
   }
 
@@ -48,6 +52,10 @@ export default class EmployeeTimeTrackingWebPart extends BaseClientSideWebPart<I
     ReactDom.unmountComponentAtNode(this.domElement);
   }
 
+  /**
+   * 
+   * @returns fetch list from current site
+   */
   private async loadLists(): Promise<IPropertyPaneDropdownOption[]> {
     return new Promise<IPropertyPaneDropdownOption[]>((resolve: (options: IPropertyPaneDropdownOption[]) => void, reject: (error: any) => void) => {
       util.getLists()
@@ -65,6 +73,10 @@ export default class EmployeeTimeTrackingWebPart extends BaseClientSideWebPart<I
     });
   }
 
+  /**
+   * 
+   * @returns property pane configuration start function
+   */
   protected onPropertyPaneConfigurationStart(): void {
     this.listsDropdownDisabled = !this.availableLists;
     if (this.availableLists) {
@@ -81,6 +93,10 @@ export default class EmployeeTimeTrackingWebPart extends BaseClientSideWebPart<I
       });
   }
 
+  /**
+   * 
+   * @returns webpart properties
+   */
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return {
       pages: [

@@ -24,3 +24,11 @@ gulp test - TODO
 gulp serve - TODO
 gulp bundle - TODO
 gulp package-solution - TODO
+
+### Deploy the Package
+* Please find the solution sharepoint>solution>employee-time-tracking.sppkg file
+* Upload it to App catalog site library
+* Deploy the solution from ribbon option
+* Add the App to the site we want from site contents
+* Edit the page on which we need to add the webpart and search for EmployeeTimeTracking webpart and add it
+* Save the page

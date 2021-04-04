@@ -2,11 +2,17 @@ import * as React from 'react';
 import styles from './EmployeeTimeTracking.module.scss';
 import { NewEntryProps, NewEntryState } from './IEmployeeTimeTrackingProps';
 import {
-  TextField, mergeStyleSets, FontWeights, getTheme, IconButton,
+  TextField,
+  mergeStyleSets,
+  FontWeights,
+  getTheme,
+  IconButton,
   IIconProps,
-  Dropdown, PrimaryButton, DefaultButton, ProgressIndicator
+  Dropdown,
+  PrimaryButton,
+  DefaultButton,
+  ProgressIndicator
 } from 'office-ui-fabric-react/lib/';
-import { RichText } from "@pnp/spfx-controls-react/lib/RichText";
 import ReactQuill from 'react-quill';
 require('react-quill/dist/quill.snow.css');
 import commonUtility from '../components/DataUtility';
@@ -20,7 +26,6 @@ const contentStyles = mergeStyleSets({
     alignItems: 'stretch',
   },
   header: [
-    // eslint-disable-next-line deprecation/deprecation
     theme.fonts.xLargePlus,
     {
       flex: '1 1 auto',
@@ -73,12 +78,20 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
     };
   }
 
+  /**
+   * 
+   * @param prevProps 
+   * update on property change
+   */
   public componentDidUpdate(prevProps) {
     if (prevProps["itemID"] != this.props.itemID) {
       this.componentDidMount();
     }
   }
 
+  /**
+   * Initial function of component
+   */
   public async componentDidMount() {
     let itemObj;
     if (this.props.itemID) {
@@ -88,7 +101,6 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
     let choiceObj = await util.getCategoryChoices(this.props.configuredListName);
     let categoryChoices = [];
     choiceObj.Choices.map((choiceOption) => { categoryChoices.push({ key: choiceOption, text: choiceOption }); });
-    //console.log(choices);
     let state: any = this.state;
     state.CategoryChoices = categoryChoices;
     if (itemObj) {
@@ -100,6 +112,11 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
     this.setState(state);
   }
 
+  /**
+   * 
+   * @returns 
+   * render Component
+   */
   public render(): React.ReactElement<NewEntryProps> {
     return (
       <div>
@@ -113,7 +130,7 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
             onClick={() => { this.props.closeModal(); }}
           />
         </div>
-        {this.state.isProgress?<ProgressIndicator />:''}
+        {this.state.isProgress ? <ProgressIndicator /> : ''}
         {this.state.isValidationLable ? <div className={styles.validationMessage}>{this.state.validationMessage}</div> : ""}
         <div className={contentStyles.body}>
           <div className={styles.FieldSection}>
@@ -123,8 +140,6 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
 
           <div className={styles.FieldSection}>
             <div className={styles.FieldTitle}>Description</div>
-            {/* <div><TextField multiline value={this.state.Description}></TextField></div> */}
-            {/* <div><RichText isEditMode={true} value={this.state.Description?this.state.Description:''}  onChange={(text)=>this.onTextChange(text)}/></div> */}
             <ReactQuill value={this.state.Description} onChange={this.onTextChange} ></ReactQuill>
           </div>
 
@@ -146,6 +161,9 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
     );
   }
 
+  /**
+   * reset all fields after save or cancel
+   */
   private resetFields() {
     this.setState({
       Title: '',
@@ -157,21 +175,22 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
     });
   }
 
+  /**
+   * 
+   * @param newText 
+   * @returns 
+   * on chaneg of description column
+   */
   private onTextChange = (newText: string) => {
-    //this.properties.myRichText = newText;
     this.setState({ Description: newText });
     return newText;
   }
 
-  // private onFieldValueChange(stateName,value){
-  //   let state:any = this.state;
-  //   state[stateName] = value;
-  //   this.setState(state);
-  // }
-
+  /**
+   * Validation and Save items(Update and New Item)
+   */
   private async onSaveClick() {
     let state: NewEntryState = this.state;
-   // await this.setState({isProgress:true});
     if (!this.state.Title && !this.state.Hours) {
       this.setState({ isValidationLable: true, validationMessage: "Title and Hours fields are required!" });
     }
@@ -182,7 +201,7 @@ export default class NewEntry extends React.Component<NewEntryProps, NewEntrySta
       this.setState({ isValidationLable: true, validationMessage: "Hours field is required!" });
     }
     else {
-      await this.setState({ isValidationLable: false, validationMessage: '',isProgress: true });
+      await this.setState({ isValidationLable: false, validationMessage: '', isProgress: true });
       if (this.props.itemID) {
         await util.UpdateSPItem(this.props.configuredListName, this.props.itemID, this.state);
         this.resetFields();

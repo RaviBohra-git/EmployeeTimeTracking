@@ -5,7 +5,6 @@ export interface IEmployeeTimeTrackingProps {
 
 export interface IEmployeeTimeTrackingState {
   isLoaded: boolean;
-  columns: any[];
   items: any[];
   isItemSelected: boolean;
   selectedItemID: string;
@@ -19,7 +18,7 @@ export interface IEmployeeTimeTrackingState {
 
 export interface TimeEntriesGridProps {
   items: any[];
-  selectItem:(ItemID,selected)=>void;
+  selectItem: (ItemID, selected) => void;
 }
 
 export interface TimeEntriesGridState {
@@ -30,8 +29,8 @@ export interface TimeEntriesGridState {
 
 export interface NewEntryProps {
   configuredListName: string;
-  itemID:string;
-  closeModal:()=>void;
+  itemID: string;
+  closeModal: () => void;
 }
 
 export interface NewEntryState {
@@ -43,8 +42,6 @@ export interface NewEntryState {
   Hours: string;
   OverTime: boolean;
   isValidationLable: boolean;
-  validationMessage:string;
+  validationMessage: string;
   isProgress: boolean;
-  // columns: any[];
-  // items: any[];
 }
