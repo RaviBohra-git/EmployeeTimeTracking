@@ -9,7 +9,9 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
-import * as strings from 'EmployeeTimeTrackingWebPartStrings';
+import PnPTelemetry from "@pnp/telemetry-js";
+const telemetry = PnPTelemetry.getInstance();
+telemetry.optOut();
 import EmployeeTimeTracking from './components/EmployeeTimeTracking';
 import { IEmployeeTimeTrackingProps } from './components/IEmployeeTimeTrackingProps';
 import * as pnp from 'sp-pnp-js';

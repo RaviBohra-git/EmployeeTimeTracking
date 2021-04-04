@@ -7,6 +7,7 @@ import {
   Selection,
   SelectionMode,
   IColumn,
+  Checkbox
 } from 'office-ui-fabric-react/lib/';
 import commonUtility from '../components/DataUtility';
 
@@ -68,8 +69,8 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
         key: 'column1',
         name: 'Title',
         fieldName: 'Title',
-        minWidth: 100,
-        maxWidth: 100,
+        minWidth: 50,
+        maxWidth: 50,
         isRowHeader: true,
         isResizable: true,
         isSorted: true,
@@ -149,6 +150,21 @@ export default class TimeEntriesGrid extends React.Component<TimeEntriesGridProp
             return <span className={styles.overTimeHours}>{item.Hours}</span>;
           else
             return <span>{item.Hours}</span>;
+        },
+      },
+      {
+        key: 'column7',
+        name: 'OverTime',
+        fieldName: 'OverTime',
+        minWidth: 70,
+        maxWidth: 90,
+        isResizable: true,
+        isCollapsible: true,
+        data: 'string',
+        onColumnClick: this._onColumnClick,
+        onRender: (item) => {
+            return <Checkbox checked={item.OverTime}>{item.Hours}</Checkbox>;
+        
         },
       },
     ];

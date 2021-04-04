@@ -10,6 +10,11 @@ export interface IEmployeeTimeTrackingState {
   isItemSelected: boolean;
   selectedItemID: string;
   isModalOpen: boolean;
+  isDialogOpen: boolean;
+  dialogTitle: string;
+  dialogmessage: string;
+  isWarning: boolean;
+
 }
 
 export interface TimeEntriesGridProps {
@@ -24,17 +29,18 @@ export interface TimeEntriesGridState {
 }
 
 export interface NewEntryProps {
-  itemObj: any;
-  CategoryChoices: any[];
+  configuredListName: string;
+  itemID:string;
   closeModal:()=>void;
 }
 
 export interface NewEntryState {
   isLoaded: boolean;
+  CategoryChoices: any[];
   Title: string;
   Description: string;
   Category: string;
-  Hours: Number;
+  Hours: string;
   OverTime: boolean;
   // columns: any[];
   // items: any[];

@@ -10,7 +10,8 @@ import {
   Modal,
   mergeStyleSets,
   FontWeights,
-  getTheme
+  getTheme,
+  Dialog, DialogType, DialogFooter, PrimaryButton, DefaultButton
 } from 'office-ui-fabric-react/lib/';
 import TimeEntriesGrid from './TimeEntriesGrid';
 import NewEntry from './NewEntry';
@@ -59,10 +60,13 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
       columns: [],
       isItemSelected: false,
       selectedItemID: '',
-      isModalOpen: false
+      isModalOpen: false,
+      isDialogOpen: false,
+      dialogTitle: '',
+      dialogmessage: '',
+      isWarning: false
     };
   }
-  
 
   public async componentDidMount() {
     let items = await util.getAllItems(this.props.configuredListName);
@@ -176,8 +180,9 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
         text: 'New',
         cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
         iconProps: { iconName: 'Add' },
-        onClick: () => {this.setState({isModalOpen:true});},
-        
+        disabled: this.state.isItemSelected,
+        onClick: () => { this.setState({ isModalOpen: true }); },
+
       },
       {
         key: 'Edit Item',
@@ -185,7 +190,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
         cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
         iconProps: { iconName: 'Edit' },
         disabled: !this.state.isItemSelected,
-        onClick: () => {this.setState({isModalOpen:true});},
+        onClick: () => { this.setState({ isModalOpen: true }); },
       }
       ,
       {
@@ -194,7 +199,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
         cacheKey: 'myCacheKey', // changing this key will invalidate this item's cache
         iconProps: { iconName: 'Delete' },
         disabled: !this.state.isItemSelected,
-        onClick: () => alert('Edit Item Clicked'),
+        onClick: () => { this.setState({isDialogOpen:true, dialogTitle:'Delete Confirmation',dialogmessage:'Item will be deleted permanently!'}); },
       }
     ];
 
@@ -206,7 +211,7 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
           items={_items}
         />
         <br></br>
-        <TimeEntriesGrid selectItem={(ItemID,selected)=>{this.setState({selectedItemID:ItemID,isItemSelected:selected});}} items={this.state.items}></TimeEntriesGrid>
+        <TimeEntriesGrid selectItem={(ItemID, selected) => { this.setState({ selectedItemID: ItemID, isItemSelected: selected }); }} items={this.state.items}></TimeEntriesGrid>
         {/* <DetailsList
           items={this.state.items}
           // compact={isCompactMode}
@@ -218,11 +223,50 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
           isHeaderVisible={true}
         // onItemInvoked={this._onItemInvoked}
         /> */}
-        <Modal isBlocking={true} containerClassName={contentStyles.container} isModeless={false} isOpen={this.state.isModalOpen} onDismissed={()=>{this.setState({isModalOpen:false});}}>
-          <NewEntry closeModal={()=>{this.setState({isModalOpen:false});}} itemObj={{}} CategoryChoices={[]}></NewEntry>
+        <Modal isBlocking={true} containerClassName={contentStyles.container} isModeless={false} isOpen={this.state.isModalOpen} onDismissed={() => { this.setState({ isModalOpen: false }); }}>
+          <NewEntry configuredListName={this.props.configuredListName} closeModal={() => { this.closeModal(); }} itemID={this.state.selectedItemID}></NewEntry>
         </Modal>
+        {this.renderDialog()}
       </div>
     );
+  }
+
+  private renderDialog() {
+
+    return (
+      <Dialog
+        hidden={!this.state.isDialogOpen}
+        onDismiss={() => { this.setState({ isDialogOpen: false }); }}
+        dialogContentProps={{
+          type: DialogType.normal,
+          title: this.state.dialogTitle,
+          subText: this.state.dialogmessage,
+        }}
+        modalProps={{
+          isBlocking: true,
+          styles: { main: { maxWidth: 450 } },
+        }}
+      >
+        {this.state.isWarning ?
+          <DialogFooter>
+            <PrimaryButton onClick={()=>{this.closeDialog();}} text="Ok" />
+          </DialogFooter>
+          : <DialogFooter>
+            <PrimaryButton onClick={()=>this.deleteItem()} text="Confirm" />
+            <DefaultButton onClick={()=>this.closeDialog()} text="Cancel" />
+          </DialogFooter>}
+      </Dialog>
+    );
+  }
+
+  private closeModal() {
+    this.setState({ isModalOpen: false });
+    this.componentDidMount();
+  }
+
+  private closeDialog() {
+    this.setState({ isDialogOpen: false,dialogTitle:'',dialogmessage:'' });
+    //this.componentDidMount();
   }
 
   private _onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
@@ -247,7 +291,15 @@ export default class EmployeeTimeTracking extends React.Component<IEmployeeTimeT
     this.setState({
       columns: newColumns,
       items: newItems,
+      isItemSelected: false,
+      selectedItemID: null
     });
+  }
+
+  private async deleteItem() {
+    await util.DeleteSPItem(this.props.configuredListName, this.state.selectedItemID);
+    this.setState({ isDialogOpen:false, isItemSelected: false, selectedItemID: null });
+    this.componentDidMount();
   }
 }
 
