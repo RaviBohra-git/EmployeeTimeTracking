@@ -12,6 +12,7 @@ gulp
 ```
 
 ### This webpart needs given columns:
+We can give any name to the list and select that list from webpart properties but the column names should be exact same as given.
 •	Title (Standard)
 •	Description (Rich Text) 
 •	CreatedBy (Standard)
